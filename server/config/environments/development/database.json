@@ -1,0 +1,20 @@
+{
+  "defaultConnection": "default",
+  "connections": {
+    "default": {
+      "connector": "strapi-hook-mongoose",
+      "settings": {
+        "database": "server",
+        "host": "cluster0-fc659.mongodb.net",
+        "srv": "true",
+        "port": 27017,
+        "username": "panpan31415",
+        "password": "panpan_7533"
+      },
+      "options": {
+        "authenticationDatabase": "",
+        "ssl": true
+      }
+    }
+  }
+}
