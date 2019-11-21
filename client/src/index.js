@@ -9,6 +9,7 @@ import SingUp from "./components/SingUp";
 import Checkout from "./components/Checkout";
 import NotFoundPage from "./components/NotFoundPage";
 import Navbar from "./components/Navbar";
+import Brews from "./components/Brews";
 import "gestalt/dist/gestalt.css";
 
 const Root = () => (
@@ -20,6 +21,7 @@ const Root = () => (
         <Route component={SingIn} exact path="/signin" />
         <Route component={SingUp} exact path="/signup" />
         <Route component={Checkout} exact path="/checkout" />
+        <Route component={Brews} exact path="/:brandId" />
         <Route component={NotFoundPage} path="/*" />
       </Switch>
     </React.Fragment>

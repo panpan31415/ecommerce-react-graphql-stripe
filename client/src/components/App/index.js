@@ -58,7 +58,7 @@ class App extends Component {
   };
 
   render() {
-    const { brands, searchTerm, loadingBrands } = this.state;
+    const { searchTerm, loadingBrands } = this.state;
     return (
       <Container>
         {/* search */}
@@ -96,6 +96,7 @@ class App extends Component {
           justifyContent="around"
           wrap
         >
+          <Loader show={loadingBrands} />
           {this.filteredBrands(this.state).map(b => (
             <Box padding={4} key={b._id} margin={2} width={200}>
               <Card
@@ -125,15 +126,13 @@ class App extends Component {
                   </Text>
                   <Text>{b.description}</Text>
                   <Text bold>
-                    <Link to={`/${apiUrl}brands/${b._id}`}>See Brews</Link>
+                    <Link to={`/${b._id}`}>See Brews</Link>
                   </Text>
                 </Box>
               </Card>
             </Box>
           ))}
         </Box>
-
-        <Loader show={loadingBrands} />
       </Container>
     );
   }
