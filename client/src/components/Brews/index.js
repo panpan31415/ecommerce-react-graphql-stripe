@@ -11,6 +11,8 @@ import {
   IconButton,
 } from "gestalt";
 import { Link } from "react-router-dom";
+import { calculatePrice, setCart, getCart } from "../../utils";
+
 const apiUrl = process.env.API_URL || "http://localhost:1337/";
 const strapi = new Strapi(apiUrl);
 class Brews extends React.Component {
@@ -34,6 +36,7 @@ class Brews extends React.Component {
       this.setState({
         brand: response.data.brand.name,
         brews: response.data.brand.brews,
+        cartItems: getCart(),
       });
     } catch (e) {
       console.log(e);
@@ -54,17 +57,23 @@ class Brews extends React.Component {
     } else {
       const updatedItems = [...this.state.cartItems];
       updatedItems[alreadyInCart].quantity += 1;
-      this.setState({
-        cartItems: updatedItems,
-      });
+      this.setState(
+        {
+          cartItems: updatedItems,
+        },
+        () => setCart(updatedItems),
+      );
     }
   };
 
   deleteItemFromCart = id => {
     const filteredItems = this.state.cartItems.filter(item => item._id !== id);
-    this.setState({
-      cartItems: filteredItems,
-    });
+    this.setState(
+      {
+        cartItems: filteredItems,
+      },
+      setCart(filteredItems),
+    );
   };
 
   render() {
@@ -145,7 +154,7 @@ class Brews extends React.Component {
           </Box>
         </Box>
         {/* Users Cart */}
-        <Box marginTop={2} marginLeft={8} alignSelf="end">
+        <Box marginTop={2} marginLeft={8}>
           <Mask shape="rounded" wash>
             <Box
               display="flex"
@@ -154,7 +163,7 @@ class Brews extends React.Component {
               padding={2}
             >
               {/* User cart heading */}
-              <Heading align="center" size="md">
+              <Heading align="center" size="sm">
                 Your Cart
               </Heading>
               <Text color="gray" italic>
@@ -188,7 +197,7 @@ class Brews extends React.Component {
                     <Text color="red">Please select some items</Text>
                   )}
                 </Box>
-                <Text size="lg">Total: $31.94</Text>
+                <Text size="lg">Total: {calculatePrice(cartItems)}</Text>
                 <Text>
                   <Link to="/checkout">checkout</Link>
                 </Text>
