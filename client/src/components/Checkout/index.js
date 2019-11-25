@@ -10,6 +10,7 @@ import {
 } from "gestalt";
 import ToastMessage from "../ToastMessage";
 import { getCart, calculatePrice } from "../../utils";
+import {StripeProvider,Elements, CardElement,injectStripe} from "react-stripe-elements"
 
 
 const ConfirmationModal = ({ orderProcessing, cartItems, closeModal, handleSubmitOrder }) => (
@@ -47,7 +48,7 @@ const ConfirmationModal = ({ orderProcessing, cartItems, closeModal, handleSubmi
     {/* order summary */}
     {!orderProcessing && (<Box display="flex" justifyContent="center" alignItems="center" direction="column" padding={1} color="lightWash">
       {cartItems.map(item => <Box key={item._id} padding={1}>
-        <Text size="lg" color="red" color="red">
+        <Text size="lg" color="red">
           {item.name} x {item.quantity} - ${item.quantity * item.price}
         </Text>
       </Box>)}
@@ -64,7 +65,7 @@ const ConfirmationModal = ({ orderProcessing, cartItems, closeModal, handleSubmi
   </Modal>)
 
 
-class Checkout extends React.Component {
+class _CheckoutForm extends React.Component {
 
 
   state = {
@@ -229,6 +230,11 @@ class Checkout extends React.Component {
                 onChange={this.handleChange}
 
               />
+              {/*credit card element */}
+              <CardElement id="stripe__input" onReady={ input => input.focus()}/>
+
+
+
               <button id="stripe__button" type="submit">Submit</button>
             </form></React.Fragment> : <React.Fragment>
               <Box color="darkWash" shape="rounded" padding={4}>
@@ -250,9 +256,20 @@ class Checkout extends React.Component {
       />}
       <ToastMessage msg={this.state.toast || ""} />
     </Container>
-      ;
+      
   }
 }
+
+const CheckoutForm = injectStripe(_CheckoutForm);
+
+const Checkout = () =>(
+<StripeProvider apiKey="pk_test_mxpo2VI3l1BwHrIx54pPm7CI00yPWpVnb6">
+<Elements>
+  <CheckoutForm/>
+</Elements>
+</StripeProvider>)
+  
+
 
 
 
