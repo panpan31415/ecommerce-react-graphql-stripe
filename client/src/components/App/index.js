@@ -14,7 +14,6 @@ import Strapi from "strapi-sdk-javascript/build/main";
 import { Link } from "react-router-dom";
 import Loader from "../Loader";
 const apiUrl = process.env.API_URL || "http://localhost:1337/";
-
 const strapi = new Strapi(apiUrl);
 
 class App extends Component {

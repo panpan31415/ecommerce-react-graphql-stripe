@@ -8,9 +8,15 @@ import {
   Modal,
   Spinner, Button
 } from "gestalt";
+import { withRouter } from "react-router-dom";
 import ToastMessage from "../ToastMessage";
-import { getCart, calculatePrice } from "../../utils";
+import { getCart, calculatePrice,clearCart, calculateAmount } from "../../utils";
 import {StripeProvider,Elements, CardElement,injectStripe} from "react-stripe-elements"
+import Strapi from "strapi-sdk-javascript/build/main";
+
+const apiUrl = process.env.API_URL || "http://localhost:1337/";
+const strapi = new Strapi(apiUrl);
+
 
 
 const ConfirmationModal = ({ orderProcessing, cartItems, closeModal, handleSubmitOrder }) => (
@@ -108,23 +114,44 @@ class _CheckoutForm extends React.Component {
     this.setState({
       modal: true
     });
-
-
-    // login user
-
-    // try {
-    //   this.setState({ loading: true });
-    //   const response = await strapi.login(username, password);
-    //   this.setState({ loading: false });
-    //   setToken(response.jwt);
-    //   this.props.history.push("/");
-    // } catch (error) {
-    //   this.setState({ loading: false });
-    //   this.showToast(error.statusCode);
-    // }
   };
 
-  handleSubmitOrder = () => {
+  handleSubmitOrder = async () => {
+    const { cartItems, city, address, postalCode } = this.state;
+    const amount = calculateAmount(cartItems)
+    this.setState({ orderProcessing: true });
+    let token;
+    try {
+      // create stripe token
+      // this.props.stripe is from react-stripe-elements package 
+      const response = await this.props.stripe.createToken();
+      token = response.token.id;
+      // create order with strapi sdk (make request to backend )
+      
+      await strapi.createEntry("orders", {
+        amount,brews:cartItems,city,postalCode,address,token
+      })
+     
+      // set order processing to false 
+      // set modal to false 
+      this.setState({
+        orderProcessing: false,
+        modal:false
+      });
+      // clear user cart 
+      clearCart();
+      // show success toast 
+      this.showToast("your order has been successfully submitted",true);
+    } catch (err) {
+      this.showToast(err.message);
+      // set order processing to false , modal to false 
+      this.setState({
+        orderProcessing: false,
+        modal:false
+      });
+      // show error toast
+      
+    }
 
   }
 
@@ -140,13 +167,11 @@ class _CheckoutForm extends React.Component {
   }
 
 
-  showToast = msg => {
+  showToast = (msg,redirect = false) => {
     this.setState({
       toast: msg,
     });
-    setTimeout(() => {
-      this.setState({ toast: "" });
-    }, 5000);
+    setTimeout(() => { this.setState({ toast: "" });redirect&&this.props.history.push("/")}, 5000);
   };
 
   render() {
@@ -260,8 +285,7 @@ class _CheckoutForm extends React.Component {
   }
 }
 
-const CheckoutForm = injectStripe(_CheckoutForm);
-
+const CheckoutForm = withRouter(injectStripe(_CheckoutForm))  ;
 const Checkout = () =>(
 <StripeProvider apiKey="pk_test_mxpo2VI3l1BwHrIx54pPm7CI00yPWpVnb6">
 <Elements>
